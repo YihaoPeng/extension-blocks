@@ -53,11 +53,13 @@ revised many of the ideas of the original proposal.
 
 **扩展区块**是另一个改进提案，是在2017年同样由Johnson Lau提出的，新方案改变了原来方案的很多想法。
 
-## Specification
+## Specification 规范
 
 Extension blocks devise a second layer on top of canonical bitcoin blocks in
 which a miner will commit to the merkle root of an additional block of
 transactions.
+
+扩展区块，是在权威区块之上构建了一个亚层，矿工将这个附加区块的交易合并到梅克尔树根（merkle root）。
 
 Extension blocks leverage several features of BIP141, BIP143, and BIP144 for
 transaction opt-in, serialization, verification, and network services. This
@@ -65,20 +67,28 @@ specification should be considered an extension and modification to these BIPs.
 Extension blocks are _not_ compatible with BIP141 in its current form, and will
 require a few minor additional rules.
 
+扩展区块方法使用了若干来自BIP141、BIP143和BIP144的特征来实现交易的选入（opt-in）、序列化（serialization）、验证（verification）和网络服务（network services）。这份规范应该考虑对这个改进协议（BIPs）的扩展和修改。扩展区块目前的版本是和BIP141不兼容的，需要附加少量额外的规则。
+
 Extension blocks maintain their own UTXO set in order to avoid interference
 with the existing UTXO set of non-upgraded nodes. This is a tricky endeavor,
 requiring a `resolution` transaction to be present at the end of every
 canonical block.
+
+为了避免和未升级的节点的UTXO集相冲突，扩展区块使用自己独立的UTXO集。这是非常巧妙的努力，需要在每个权威区块的最末端加入一笔解析交易（resolution transaction）。
 
 This specification prescribes a way of fooling non-upgraded nodes into
 believing the existing UTXO set is still behaving as they would expect.
 Unfortunately, this requires a bit of extra book-keeping on the upgraded node's
 side.
 
-### Commitment
+这份规范提供了一种方法，来欺骗未升级的节点相信这些存在的UTXO集依然遵行它们期望的规则。不幸的是，这需要在升级的节点这一侧，增加额外的记账（book-keeping）。
+
+### Commitment 承诺
 
 An upgraded miner willing to include extension block is to include an extra
 coinbase output of 0 value. The output script exists as such:
+
+一个升级过后的矿工如果想要打包扩展区块，它会在自己打包的权威区块中包含一个额外的coinbase输出，这个输出发送0个比特币，其脚本如下：
 
 ```
 OP_RETURN 0x24 0xaa21a9ef[32-byte-merkle-root]
@@ -87,11 +97,17 @@ OP_RETURN 0x24 0xaa21a9ef[32-byte-merkle-root]
 The commitment serialization and discovery rules follows the same rules defined
 in BIP141.
 
+特征值（译者注：这里的特征值原文是commitment，经过阅读BIP141 这个词是个加密学术语，就是通过一个值来保证和另一串数据的一一对应关系，是通过计算哈希得出。BIP141的里定义：The commitment is recorded ina scriptPubKey of the coinbase transaction. 即，这个特征值是用于公钥脚本记录coinbase交易）的系列化和搜索规则遵从BIP 141的规则。
+
 The merkle root is to be calculated as a merkle tree with all extension and
 canonical block txids and wtxids as the leaves.
 
+被用于计算梅克尔根的梅克尔树会将所有的扩展区块和权威区块的txids和wtxids作为叶子计算进去。
+
 Any block containing an extension block MUST include an extension commitment
 output.
+
+任何包含扩展区块的权威区块必须包含扩展特征值（commitment）输出。
 
 ### Extension block opt-in
 
