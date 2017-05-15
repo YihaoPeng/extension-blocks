@@ -141,22 +141,30 @@ created outputs). The funds are to be sent to a single anyone-can-spend
 (OP_TRUE) output. This output is forbidden by consensus rules to be spent by
 any transaction aside from another `resolution` transaction.
 
-如果一个主区块中包含进入或离开扩展区块的交易输出，则它必须在区块最后包含一个解析交易。这个解析交易会花费掉所有打算进入扩展区块的输出。解析交易必须作为区块的最后一笔交易出现(这样才能正确地抹去所有新创建的输出值)。资金将会被发送到一个单一的“任何人都可花费”（OP_TRUE）的输出。根据共识规则，除非有另一个解析交易，否则这一输出是禁止花费的。
+如果一个主区块中包含进入或离开扩展区块的交易输出，则它**必须**在区块最后包含一个解析交易。这个解析交易会花费掉所有打算进入扩展区块的输出。解析交易**必须**作为区块的最后一笔交易出现(这样才能正确地抹去所有新创建的输出值)。资金将会被发送到一个单一的“任何人都可花费”（OP_TRUE）的输出。根据共识规则，除非有另一个解析交易，否则这一输出是禁止花费的。
 
 The resolution transaction MUST contain additional outputs for outputs that
 intend to exit the extension block.
 
+解析交易**必须**包含附加的输出，以作为离开扩展区块的输出。
+
 Coinbase outputs MUST NOT contain witness programs, as they cannot be sweeped
 by the resolution transaction due to previously existing consensus rules.
 
+Coinbase输出**必须不**包含见证程序，这是因为在现存的共识规则下，它们无法被解析交易抹去。
+
 The first input of a resolution transaction MUST reference the first output of
 the previous resolution transaction.
+
+解析交易的第一个输入**必须**引用上一个解析交易的输出。
 
 Fees are to propagate up from the extension block into the resolution
 transaction. In other words, the resolution transaction's fee should should be
 equal to the amount of total fees collected in the extension block.
 
-#### Bootstrapping
+手续费是从扩展区块向上传出进入解析交易的。换句话说，解析交易的手续费，必须等于扩展区块的所有交易手续费之和。
+
+#### Bootstrapping 引导程序
 
 In order to bootstrap the activation of extension blocks, a "genesis"
 resolution transaction MUST be mined in the first block to include an extension
@@ -164,10 +172,14 @@ block commitment along with any entering outputs (the `activation` block). This
 is the only resolution transaction in existence that does not require a
 reference to a previous resolution transaction.
 
+为了引导扩展区块的激活，一个创世解析交易必须首先被挖出，它存在于第一个包含了扩展区块特征的主区块内，记录了任何首次进入扩展区块的输出（该主区块称为激活块）。这是唯一一个，不需要引用上一个解析交易输出的解析交易。
+
 The genesis resolution transaction MAY also include a 1-100 byte script in the
 first input, containing a single push-only opcode. This allows the miner of the
 genesis resolution to add a special message. The input script MUST execute
 without failure (no malformed pushdatas, no OP_RESERVED).
+
+创世解析交易也**可以**在第一个输入脚本中包含一个1到100字节的推送数据（pushdata），从而允许矿工在创世解析交易中添加一个特殊信息。推送数据必须能够转换成一个真值布尔数。
 
 #### Resolution Rules
 
