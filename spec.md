@@ -30,7 +30,7 @@ throughput without altering any existing consensus rules.
 The bitcoin network's transaction throughput is correlated with its consensus
 rules regarding retargetting and denial-of-service limits.
 
-比特币的交易吞吐量与他的共识规则相关，这一规则涉及到重定向（retargetting）和限制拒绝服务（denial-of-service limits）。
+比特币的交易吞吐量与它的共识规则相关，这一规则涉及到重定向（retargetting）和拒绝服务（denial-of-service）的限制。
 
 Bitcoin retargetting ensures that the time in between mined blocks will be
 roughly 10 minutes. It is not possible to change this rule. There has been
@@ -181,14 +181,20 @@ without failure (no malformed pushdatas, no OP_RESERVED).
 
 创世解析交易也**可以**在第一个输入脚本中包含一个1到100字节的推送数据（pushdata），从而允许矿工在创世解析交易中添加一个特殊信息。推送数据必须能够转换成一个真值布尔数。
 
-#### Resolution Rules
+#### Resolution Rules 解析规则
 
 The resolution transaction's first output MUST have a value equal to:
 
+解析交易的第一个输出金额必须等于：
+
 `(previous-resolution-value + entering-value - exiting-value) - ext-block-fees`
+
+`(前一个解析值金额 + 进入金额 - 离开金额) - 扩展区块手续费`
 
 The following output scripts and values must replicate the extension block's
 exiting outputs _exactly_ (in the same order they appear in the ext. block).
+
+接下来的输出脚本和金额必须精确复制扩展区块的现有输出（包括在扩展区块出现的顺序也要相同）。
 
 The resolution transaction's version MUST be set to the uint32 max (`2^32 - 1`).
 After activation, this version is forbidden by consensus rules to be used with
