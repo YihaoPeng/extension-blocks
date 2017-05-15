@@ -1,26 +1,36 @@
-# Extension Blocks
+# Extension Blocks 扩展区块
 
 ```
 Layer: Consensus (soft-fork)
+层级：共识层（软分叉）
 Title: Extension Blocks
+标题：扩展区块
 Author: Christopher Jeffrey <chjj@purse.io>
         Joseph Poon <joseph@lightning.network>
         Fedor Indutny <fedor@indutny.com>
         Stephen Pair <stephen@bitpay.com>
 Status: Draft
+状态：草案
 Created: 2017-03-17
 License: Public Domain
+许可：公有领域
 ```
 
-## Abstract
+译文摘自巴比特：<http://www.8btc.com/extension-blocks>，有改动。
+
+## Abstract 摘要
 
 This specification defines a method of increasing bitcoin transaction
 throughput without altering any existing consensus rules.
 
-## Motivation
+本规范定义了一种增加比特币的交易吞吐量同时又不改变现行共识规则的方法
+
+## Motivation 目的
 
 The bitcoin network's transaction throughput is correlated with its consensus
 rules regarding retargetting and denial-of-service limits.
+
+比特币的交易吞吐量与他的共识规则相关，这一规则涉及到重定向（retargetting）和限制拒绝服务（denial-of-service limits）。
 
 Bitcoin retargetting ensures that the time in between mined blocks will be
 roughly 10 minutes. It is not possible to change this rule. There has been
@@ -28,14 +38,20 @@ debate regarding other ways of greatly increasing transaction throughput, with
 no proposed consensus-layer solutions that have proven themselves to be
 particularly safe.
 
-## History
+比特币的重定向（retargetting），确保了挖出两个区块之间的时间间隔大约为十分钟，改变这规则是不可能的。已经有多种显著提高交易吞吐量的方法，但这些方法却没有提出共识层解决方案来证明自己足够安全。
+
+## History 历史
 
 _Auxiliary blocks_, as first proposed by [Johnson Lau in 2013][aux], outlined a
 way of having funds enter and exit an additional block by using special
 opcodes.
 
+**附加区块**，在2013年首次由Johnson Lau提出，该方案提出了通过特殊操作码让资金进入和退出附加产区快的方法。
+
 _Extension blocks_ were a later proposal, also [from Lau in 2017][ext], which
 revised many of the ideas of the original proposal.
+
+**扩展区块**是另一个改进提案，是在2017年同样由Johnson Lau提出的，新方案改变了原来方案的很多想法。
 
 ## Specification
 
