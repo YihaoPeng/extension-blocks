@@ -59,7 +59,7 @@ Extension blocks devise a second layer on top of canonical bitcoin blocks in
 which a miner will commit to the merkle root of an additional block of
 transactions.
 
-扩展区块，是在权威区块之上构建了一个亚层，矿工将这个附加区块的交易合并到梅克尔树根（merkle root）。
+扩展区块，是在比特币主区块之上构建了一个亚层，矿工将这个附加区块里的交易合并到主区块的梅克尔树根（merkle root）。
 
 Extension blocks leverage several features of BIP141, BIP143, and BIP144 for
 transaction opt-in, serialization, verification, and network services. This
@@ -67,14 +67,14 @@ specification should be considered an extension and modification to these BIPs.
 Extension blocks are _not_ compatible with BIP141 in its current form, and will
 require a few minor additional rules.
 
-扩展区块方法使用了若干来自BIP141、BIP143和BIP144的特征来实现交易的选入（opt-in）、序列化（serialization）、验证（verification）和网络服务（network services）。这份规范应该考虑对这个改进协议（BIPs）的扩展和修改。扩展区块目前的版本是和BIP141不兼容的，需要附加少量额外的规则。
+扩展区块方案使用了若干来自BIP141、BIP143和BIP144的特征来实现交易的选入（opt-in）、序列化（serialization）、验证（verification）和网络服务（network services）。扩展区块方案应该视为对这几个改进协议（BIPs）的扩展和修改。扩展区块目前的版本和BIP141不兼容，需要附加少量额外的规则。
 
 Extension blocks maintain their own UTXO set in order to avoid interference
 with the existing UTXO set of non-upgraded nodes. This is a tricky endeavor,
 requiring a `resolution` transaction to be present at the end of every
 canonical block.
 
-为了避免和未升级的节点的UTXO集相冲突，扩展区块使用自己独立的UTXO集。这是非常巧妙的努力，需要在每个权威区块的最末端加入一笔解析交易（resolution transaction）。
+为了避免和未升级的节点的UTXO集相冲突，扩展区块使用自己独立的UTXO集。这是非常巧妙的努力，需要在每个主区块的最末端加入一笔解析交易（resolution transaction）。
 
 This specification prescribes a way of fooling non-upgraded nodes into
 believing the existing UTXO set is still behaving as they would expect.
@@ -88,7 +88,7 @@ side.
 An upgraded miner willing to include extension block is to include an extra
 coinbase output of 0 value. The output script exists as such:
 
-一个升级过后的矿工如果想要打包扩展区块，它会在自己打包的权威区块中包含一个额外的coinbase输出，这个输出发送0个比特币，其脚本如下：
+一个升级过的矿工如果想打包扩展区块，它会在自己打包的主区块中包含一个额外的coinbase输出，这个输出发送0个比特币，其脚本如下：
 
 ```
 OP_RETURN 0x24 0xaa21a9ef[32-byte-merkle-root]
@@ -97,33 +97,41 @@ OP_RETURN 0x24 0xaa21a9ef[32-byte-merkle-root]
 The commitment serialization and discovery rules follows the same rules defined
 in BIP141.
 
-特征值（译者注：这里的特征值原文是commitment，经过阅读BIP141 这个词是个加密学术语，就是通过一个值来保证和另一串数据的一一对应关系，是通过计算哈希得出。BIP141的里定义：The commitment is recorded ina scriptPubKey of the coinbase transaction. 即，这个特征值是用于公钥脚本记录coinbase交易）的系列化和搜索规则遵从BIP 141的规则。
+特征（译者注：这里的特征原文是commitment，经过阅读BIP141 这个词是个加密学术语，就是通过一个值来保证和另一串数据的一一对应关系，是通过计算哈希得出。BIP141的里定义：The commitment is recorded in a scriptPubKey of the coinbase transaction. 即，特征被记录在coinbase交易的公钥脚本中）的序列化和搜索规则遵从BIP 141的规则。
 
 The merkle root is to be calculated as a merkle tree with all extension and
 canonical block txids and wtxids as the leaves.
 
-被用于计算梅克尔根的梅克尔树会将所有的扩展区块和权威区块的txids和wtxids作为叶子计算进去。
+被用于计算该梅克尔根的梅克尔树会将所有扩展区块和主区块中的txids和wtxids作为叶子计算进去。
 
 Any block containing an extension block MUST include an extension commitment
 output.
 
-任何包含扩展区块的权威区块必须包含扩展特征值（commitment）输出。
+任何包含扩展区块的主区块必须包含扩展特征（extension commitment）输出。
 
-### Extension block opt-in
+### Extension block opt-in 扩展区块的选入
+
+（译者注：opt-in的意思是自愿接受，对应的反意词是opt-out，自愿拒绝。）
 
 Outputs can signal to enter the extension block by using witness program
 scripts (specified in BIP141). Outputs signal to exit the extension block if
 the contained script is either a minimally encoded P2PKH or P2SH script.
 
+输出可以使用见证程序脚本（witness program scripts）（见证程序脚本由BIP141定义）发出信号来进入扩展区块。如果包含在脚本里的是最小编码的P2PKH或P2SH脚本，则表示输出发出信号退出扩展区块。
+
 Output script code aside from witness programs, p2pkh or p2sh is considered
 invalid in extension blocks.
 
-### Resolution
+在扩展区块中，输出脚本代码除了见证程序、P2PKH或者P2SH之外都会被认为是无效的。
+
+### Resolution 解析
 
 Resolution transactions are a book-keeping mechanism which exist to maintain
 the total value of the extension block UTXO set. They exist as a consecutively
 redeemed OP_TRUE output. They handle both entrance into and exits from the
 extension block UTXO set.
+
+解析交易是一种记账机制,它维持了扩展区块上面UTXO集的所有价值。它们以连续的OP_TRUE输出的形式存在，处理进入和离开扩展区块的UTXO集。
 
 Every block containing entering or exiting outputs MUST contain a final
 `resolution` transaction. This resolution transaction spends all outputs that
@@ -132,6 +140,8 @@ the last transaction in the block (in order to properly sweep all of the newly
 created outputs). The funds are to be sent to a single anyone-can-spend
 (OP_TRUE) output. This output is forbidden by consensus rules to be spent by
 any transaction aside from another `resolution` transaction.
+
+如果一个主区块中包含进入或离开扩展区块的交易输出，则它必须在区块最后包含一个解析交易。这个解析交易会花费掉所有打算进入扩展区块的输出。解析交易必须作为区块的最后一笔交易出现(这样才能正确地抹去所有新创建的输出值)。资金将会被发送到一个单一的“任何人都可花费”（OP_TRUE）的输出。根据共识规则，除非有另一个解析交易，否则这一输出是禁止花费的。
 
 The resolution transaction MUST contain additional outputs for outputs that
 intend to exit the extension block.
