@@ -26,7 +26,7 @@ throughput without altering any existing consensus rules.
 The bitcoin network's transaction throughput is correlated with its consensus
 rules regarding retargetting and denial-of-service limits.
 
-比特币的交易吞吐量与它的共识规则相关，这一规则受到难度调整（retargetting）和拒绝服务（denial-of-service）的限制。
+比特币的交易吞吐量与它的共识规则有关，这一规则涉及难度调整策略（retargetting）和DoS（denial-of-service，拒绝服务攻击）限制策略。
 （译者注：根据下面那段的描述，这里说的retargetting应该是指：每隔2016个区块，比特币网络自动进行挖矿难度调整。）
 
 Bitcoin retargetting ensures that the time in between mined blocks will be
@@ -35,7 +35,7 @@ debate regarding other ways of greatly increasing transaction throughput, with
 no proposed consensus-layer solutions that have proven themselves to be
 particularly safe.
 
-比特币的难度调整（retargetting），确保了挖出两个区块之间的时间间隔大约为十分钟，改变这规则是不可能的。已经有多种显著提高交易吞吐量的方法，但这些方法却没有提出共识层解决方案来证明自己足够安全。
+比特币的难度调整策略（retargetting）确保了挖出两个区块之间的时间间隔大约为十分钟，改变这规则是不可能的。已经有多种显著提高交易吞吐量的方法，但这些方法却没有提出共识层解决方案来证明自己足够安全。
 
 ## History 历史
 
@@ -368,7 +368,7 @@ On the policy layer, transaction fees may be calculated by transaction cost as
 well as additional size/legacy-sigops added to the canonical block due to
 entering or exiting outputs.
 
-在费用策略制定层面,交易费的计算方法可以考虑交易成本，同时考虑进入和离开的输出导致主区块额外增长的`交易尺寸/签名策略`（size/legacy-sigops）。
+在费用策略制定层面,交易费的计算方法可以考虑交易成本，同时考虑进入和离开的输出导致主区块额外增长的`交易尺寸/传统签名操作次数`（size/legacy-sigops）。
 
 In the previous example, the spender of Transaction #2's output could have also
 added a fee.
@@ -450,7 +450,7 @@ consider the entire block invalid.
 
 只要扩展区块在通过任何一项共识检查时失败，则已经升级的节点就必须认为整个区块无效（包括主区块和扩展区块）。
 
-### BIP141 Rule Changes
+### BIP141 Rule Changes BIP141规则改变
 
 - Aside from the resolution transaction, witness program outputs are only
   redeemable inside of an extension block.
@@ -461,27 +461,41 @@ consider the entire block invalid.
 - The concept of `sigops cost` remains present for future soft-forkable and
   upgradeable DoS limits.
 
-### DoS Limits
+
+
+- 除了解析交易外，见证程序的输出必须只在扩展区块内被赎回。
+- 见证交易可以只包含见证程序输入。
+- BIP141的P2SH嵌套特性不再可用，该特性不再作为共识规则。
+- 块权重（`block weight`）和交易权重（`transaction weight`）的概念被移除。
+- 签名操作成本（`sigops cost`）的概念保留，以备将来的软分叉或DoS限制策略升级使用。
+
+### DoS Limits DoS限制
 
 DoS limits shall be enforced by extension block size as well as the newly
 defined metrics of inputs and outputs cost. Be aware that exiting outputs
 inside the extension block affect DoS limits in the canonical block, as they
 add size and legacy sigops.
 
+DoS限制应通过扩展块大小以及新定义的输入和输出成本标准来实施。请留意退出扩展块的输出对主块中DoS限制的影响，因为它们增加了解析交易的大小和传统签名操作的次数。
+
 ```
-MAX_BLOCK_SIZE: 1000000 (unchanged)
-MAX_BLOCK_SIGOPS: 20000 (unchanged)
-MAX_EXTENSION_SIZE: TBD
-MAX_EXTENSION_COST: TBD
+MAX_BLOCK_SIZE 最大主块大小: 1000000 (未改变)
+MAX_BLOCK_SIGOPS 最大主块签名数: 20000 (未改变)
+MAX_EXTENSION_SIZE 最大扩展块大小: 待定
+MAX_EXTENSION_COST 最大扩展块成本: 待定
 ```
 
 The maximum extension size should be intentionally high. The average case block
 is truly limited by inputs (sigops) and outputs cost.
 
+应该刻意设置一个较高的最大扩展块大小。块的平均大小真正受限于输入（签名操作）和输出的成本。
+
 Future size and computational scalability can be soft-forked in with the
 addition of new witness programs. On non-upgraded nodes, unknown witness
 programs count as 1 inputs/outputs cost. Lesser cost can be implemented for
 newer witness programs in order to allow future soft-forked dos limit changes.
+
+未来的区块尺寸和计算的可扩展性可以通过软分叉附加新的见证程序来实现。在未升级的节点中，未知见证程序的计算量开销被当成是 1 inputs/outputs 来计算。对新的见证程序设置更低的计算量开销可以使未来通过软分叉实现DoS限制策略的变更。
 
 ##### Extended Transaction Cost
 
