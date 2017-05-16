@@ -201,71 +201,78 @@ After activation, this version is forbidden by consensus rules to be used with
 any other transaction on the canonical chain or extension chain. This is
 required for easy non-contextual identification of a resolution transaction.
 
-### Entering the extension block
+解析交易的版本必须设置到uint32最大（2^32-1）。在激活之后，这一版本号会被共识规则在主区块链（1M链）或其他扩展链上的交易禁止使用。这一要求是为了解析交易在非上下文状态（non-contextual）下被识别。
+
+### Entering the extension block 进入扩展区块
 
 Any witness program output is considered an opt-in to fund a keyhash or
 scripthash within the extension block's UTXO set.
 
+任何见证程序输出，如果存在属于扩展区块UTXO集的keyhash或scripthash输出，都视为一个选入（opt-in，即进入扩展区块）。
+
 Example block:
+区块示例：
 
 ```
-Transaction #1 (coinbase):
+交易#1 (coinbase):
 
-Output #0:
-  - Script: P2PKH
-  - Value: 12.5
+输出#0：
+  - 脚本: P2PKH
+  - 金额: 12.5
 
-Output #1:
-  - Script: OP_RETURN 0xaa21a9ef[merkle-root]
-  - Value: 0
+输出#1:
+  - 脚本: OP_RETURN 0xaa21a9ef[merkle-root]
+  - 金额: 0
 ```
 
 ```
-Transaction #2 (extension block funding transaction):
+交易#2 (扩展块入账交易):
 
-Output #0:
-  - Script: P2WPKH (will enter the extension utxo set)
-  - Value: 5.0
+输出#0:
+  - 脚本: P2WPKH (进入扩展块UTXO集)
+  - 金额: 5.0
 
-Output #1:
-  - Script: P2PKH (stays in the canonical utxo set)
-  - Value: 2.5
+输出#1:
+  - 脚本: P2PKH (留在主块UTXO集内)
+  - 金额: 2.5
 ```
 
 The resolution transaction shall redeem any witness program outputs:
+解析交易将会赎回任何见证程序输出：
 
 ```
-Transaction #3 (resolution transaction):
+交易#3 (解析交易):
 
-Input #0:
+输入#0:
   - Outpoint:
-    - Hash: previous-resolution-txid
+    - Hash: 前向解析交易txid
     - Index: 0
 
-Input #1:
+输入#1:
   - Outpoint:
-    - Hash: Transaction #2 TXID
+    - Hash: 交易#2 TXID
     - Index: 0
 
-Output #0:
+输出#0:
   - Script: OP_TRUE
-  - Value: 5.0
+  - 金额: 5.0
 ```
 
 In the case that a spender wants to redeem tx2/output0, the corresponding
 extension block may exist as such:
+想在扩展块内赎回tx2/output0，则该扩展块可有如下交易：
 
 ```
-Transaction #4 (redeemer of transaction #2):
+交易#4 (赎回交易#2):
 
-Input #0:
+输入#0:
   - Outpoint:
-    - Hash: Transaction #2 TXID
+    - Hash: 交易#2 TXID
     - Index: 0
 
-Output #0:
-  - Script: P2WPKH (this output remains in the ext. block)
-  - Value: 5.0
+输出#0:
+  - 脚本: P2WPKH (该输出留在扩展块内)
+  - 金额: 5.0
 ```
 
 ### Exiting the extension block
