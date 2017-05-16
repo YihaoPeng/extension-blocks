@@ -666,7 +666,7 @@ own transactions and outputs.
 
 后两点只适合这样的钱包：这些钱包通过直接监控区块链来进行操作。监控类钱包通常关注区块链，并且索引他们自己的交易和输出。
 
-### Mempool Concerns
+### Mempool Concerns 对内存池的影响
 
 Changes to mempool implementations are surprisingly minimal. Although details
 may differ across implementations, a conforming mempool must disallow
@@ -674,28 +674,40 @@ cross-chain spends (mixed inputs on both chains), as well as track exiting
 output's outpoints. These outpoints may not be spent inside the mempool (they
 must be redeemed from the next resolution txid in reality).
 
-### Mining Concerns
+内存池实现所需的改动是非常小的。尽管实现细节上可能略有不同，但是一个合规的内存池必须在追踪确认某输入的前向输出（outpoints）时拒绝跨链花费（同时包含主块和扩展块上的输入）。这样的前向输出是不能在内存池被下一笔交易所花费的（因为它们只有在下一个解析交易的txid真实生成时才能被赎回）。
 
-#### Additional size and sigops calculation
+### Mining Concerns 对挖矿的影响
+
+#### Additional size and sigops calculation 附加大小和签名操作计算
 
 Nodes creating block templates internally will have to take into account
 entering and exiting outputs when reserving size for the canonical block. A
 transaction with entering outputs or exiting outputs adds size to the canonical
 block.
 
+节点在内部创建区块模板时，在为主区块留出保留空间时应考虑到进出扩展区块的交易输出的大小。包含了进出扩展区块的输出的交易会增加主区块的大小。
+
 Entering outputs add size in the form of inputs in the resolution transaction.
+
+进入扩展区块的交易输出将会做为解析交易的输入增加解析交易的尺寸。
 
 Exiting outputs add both size and legacy sigops in the form of duplicated
 outputs on the resolution transaction.
 
+离开扩展区块的交易输出会在解析交易中以重复输出的形式增加大小和传统签名次数（sigops）。
+
 Transaction sorting and selection algorithms must take care to account for
 this.
 
-#### Extensions to `getblocktemplate` (BIP22)
+交易的排序和选择算法必须仔细考虑这些特点。
+
+#### Extensions to `getblocktemplate` (BIP22) 对`getblocktemplate`（BIP22）的扩展
 
 In addition to the `transactions` array, conforming implementations MUST
 include an `extension` array. The `extension` array contains transactions as
 defined in BIP22 as well as the BIP145 extensions to `getblocktemplate`.
+
+除`transactions`数组外，兼容本协议的实现还必需包含一个`extension`数组。该`extension`数组包括了按照BIP22定义的交易，以及按BIP145定义的`getblocktemplate`的扩展区块。
 
 Conforming implementations MUST include the resolution transaction as part of
 the `transactions` array. The resolution transaction must have an extra
@@ -703,42 +715,56 @@ property called `resolution`, which is a boolean value set to `true`. Including
 the resolution TX in the `transactions` array directly is done for backward
 compatibility with existing mining clients.
 
+兼容的实现**必须**在其`transactions`数组中包含解析交易。该解析交易必须有一个额外的属性`resolution`，设置为布尔值`true`。在`transactions`数组中包含解析交易使其可以兼容现有的挖矿客户端。
+
 `default_witness_commitment` has been renamed to `default_extension_commitment`
 and includes the extension block commitment script.
+
+`default_witness_commitment`在扩展区块中被重命名为`default_extension_commitment`，并包含在扩展区块的commitment脚本里。
 
 An extra `mutable` field is defined for `"resolution"`. If `transactions` is
 present in the mutable array, `resolution` allows extension block mutation,
 provided the client is able to properly update the resolution transaction.
 
+一个额外的`mutable`字段被定义在`"resolution"`数组中。如果`transactions`现在是可变数组，`resolution`允许扩展区块可变，这让客户端可以正确更新解析交易。
+
 Along with the `resolution` mutable field, a `resolution` `capabilities` field
 is also defined in order for the client to state that it is capable of updating
 the resolution transaction.
+
+与`resolution`字段一起，新定义的`resolution` `capabilities`字段是为了让客户端能够申明其更新解析交易的能力。
 
 For nodes dealing with out of date mining clients, storing the extension block
 locally in a map of `commitment-hash->ext. block` may be required (along with
 some reserialization during a `submitblock` call).
 
-### Data Migration Concerns
+对于与老旧挖矿客户端交互的节点来说，可能需要在本地使用键值对为`commitment-hash->ext. block`的map容器来存储扩展区块（并且还要在调用submitblock期间，完成一些重新序列化的工作）。
+
+### Data Migration Concerns 数据迁移的影响
 
 It is likely that implementations will need to include an extra bit on every
 stored UTXO in order to mark which chain they belong to. Depending on the
 implementation's UTXO serialization/compression format, this may require a
 database migration.
 
-### Activation
+每一个实现（implenmentations）都需要一个额外的位（bit）来存储一个UTXO位于哪一条链。根据实现的UTXO序列化/压缩格式的不同，这可能需要一次数据库迁移。
 
-- Version bit: 2
-- Deployment name: `extblk` (appears as `!extblk` in GBT).
-- Start time: TBD
-- Timeout: TBD
+### Activation 激活
 
-### Deactivation
+- 版本位: 2
+- 部署名称: `extblk` (在GBT中记作`!extblk`)
+- 开始时间: 待定
+- 超时时间: 待定
+
+### Deactivation 去激活
 
 Miners may vote on deactivation of the extension block via the 28th BIP9
 softfork bit. The "deactivation" deployment's start time shall begin 3 years
 after the start time of extension blocks, with a miner activation threshold of
 95%. The minimum locked-in period must be at least 26 retarget intervals (1
 year).
+
+扩展区块激活后，矿工可以通过第28个BIP9软分叉位来实现将扩展区块去激活（使其失效）。这个“去激活”部署的开始时间应该在扩展区块激活后3年才可以，使“去激活”生效的算力阈值为95%。最小的锁定周期必须至少为26个难度调整周期（1年）。
 
 By this point, a future extension block ruleset will likely have been
 developed, which is superior in terms of feature-set and scalability (see also:
