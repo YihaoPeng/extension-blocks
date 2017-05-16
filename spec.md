@@ -429,16 +429,26 @@ Extension block:
 Verification of transactions within the extension block shall enforce all
 currently deployed softforks, along with an extra BIP141-like ruleset.
 
+扩展块内的交易验证应强制执行所有当前部署的软分叉，以及一个额外的类BIP141规则集。
+
 Transactions within the extended transaction vector MAY include a witness
 vector using BIP141 transaction serialization.
+
+扩展交易集合（extended transaction vector）中的交易**可以**包含一个使用BIP141交易序列化表示的见证集合（witness vector）。
 
 Verification shall be performed on extended transactions with `VERIFY_WITNESS`
 rules.
 
+扩展交易的验证工作将会使用`VERIFY_WITNESS`规则。
+
 Extended transactions MUST NOT have any access to the canonical UTXO set.
+
+扩展交易**不可以**使用任何来自主区块的UTXO集。
 
 If an extension block fails any consensus check, the upgraded node MUST
 consider the entire block invalid.
+
+只要扩展区块在通过任何一项共识检查时失败，则已经升级的节点就必须认为整个区块无效（包括主区块和扩展区块）。
 
 ### BIP141 Rule Changes
 
