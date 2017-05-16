@@ -109,7 +109,7 @@ output.
 
 任何包含扩展区块的主区块必须包含扩展特征（extension commitment）输出。
 
-### Extension block opt-in 扩展区块的选入
+### Extension block opt-in 交易进出扩展区块
 
 （译者注：opt-in的意思是自愿接受，对应的反意词是opt-out，自愿拒绝。）
 
@@ -244,17 +244,17 @@ The resolution transaction shall redeem any witness program outputs:
 交易#3 (解析交易):
 
 输入#0:
-  - Outpoint:
-    - Hash: 前向解析交易txid
-    - Index: 0
+  - 前向输出（Outpoint）:
+    - 哈希: 前向解析交易txid
+    - 序号: 0
 
 输入#1:
-  - Outpoint:
-    - Hash: 交易#2 TXID
-    - Index: 0
+  - 前向输出（Outpoint）:
+    - 哈希: 交易#2 TXID
+    - 序号: 0
 
 输出#0:
-  - Script: OP_TRUE
+  - 脚本: OP_TRUE
   - 金额: 5.0
 ```
 
@@ -266,78 +266,85 @@ extension block may exist as such:
 交易#4 (赎回交易#2):
 
 输入#0:
-  - Outpoint:
-    - Hash: 交易#2 TXID
-    - Index: 0
+  - 前向输出（Outpoint）:
+    - 哈希: 交易#2 TXID
+    - 序号: 0
 
 输出#0:
   - 脚本: P2WPKH (该输出留在扩展块内)
   - 金额: 5.0
 ```
 
-### Exiting the extension block
+### Exiting the extension block 离开扩展区块
 
 In order to ensure a 1-to-1 value between the existing blockchain and the
 extension block, an exit must be provided for outputs that exist in the
 extension block.
 
+为了确保现存的区块链和扩展区块里的币汇率为1：1，一笔离开扩展区块的金额必须提供在扩展区块里存在的输出。
+
 In a later transaction, the spender of Transaction #2's output may want an
 output to exit with some of their money.
+接着上面的例子，随后交易#2输出的花费者可能想要把部分资金从扩展区块转回主区块。
+
+主块：
+```
+交易#5 (coinbase):
+
+输出#0:
+  - 脚本: P2PKH
+  - 金额: 12.5
+
+输出#1:
+  - 脚本: OP_RETURN 0xaa21a9ef[merkle-root]
+  - 金额: 0
+```
 
 ```
-Transaction #5 (coinbase):
+交易#6 (解析交易):
 
-Output #0:
-  - Script: P2PKH
-  - Value: 12.5
+输入#0:
+  - 前向输出（Outpoint）:
+    - 哈希: 前向解析交易txid
+    - 序号: 0
 
-Output #1:
-  - Script: OP_RETURN 0xaa21a9ef[merkle-root]
-  - Value: 0
-```
+输出#0:
+  - 脚本: OP_TRUE
+  - 金额: 2.5
 
-```
-Transaction #6 (resolution transaction):
-
-Input #0:
-  - Outpoint:
-    - Hash: previous-resolution-txid
-    - Index: 0
-
-Output #0:
-  - Script: OP_TRUE
-  - Value: 2.5
-
-Output #1:
-  - Script: P2PKH (duplicated from the exited output below)
-  - Value: 2.5
+输出#1:
+  - 脚本: P2PKH (重复下面扩展块内的退出输出)
+  - 金额: 2.5
 ```
 
 Extension block:
+扩展块：
 
 ```
-Transaction #7:
+交易#7:
 
-Input #0:
-  - Outpoint:
-    - Hash: Transaction #4 TXID
-    - Index: 0
+输入#0:
+  - 前向输出（Outpoint）:
+    - 哈希: 交易#4 TXID
+    - 序号: 0
 
-Output #0:
-  - Script: P2WPKH (this output will remain in the ext. block)
-  - Value: 2.5
+输出#0:
+  - 脚本: P2WPKH (该输出留着扩展区块内)
+  - 金额: 2.5
 
-Output #1:
-  - Script: P2PKH (note that this causes an exit!)
-  - Value: 2.5
+输出#1:
+  - 脚本: P2PKH (该输出退出扩展区块)
+  - 金额: 2.5
 ```
 
-#### Exit Redemption
+#### Exit Redemption 赎回退出扩展区块的输出
 
 As described above, outputs exit from the extension block onto the main chain
 by way of the resolution transaction. The outpoint created in the extension
 block MUST not to be spent on either chain. Instead, exiting outputs must be
 spent from outpoints created on the resolution transaction.
+
+根据上面的描述，扩展区块里的输出是通过解析交易来离开扩展区块回到主链上的。在扩展区块里该输入的前向输出（outpoint）必须没有被任何一边花费。此外，离开扩展区块的交易输出必须做为解析交易里输入的前向输出（outpoints）被花费。
 
 #### Exit Maturity Requirement
 
