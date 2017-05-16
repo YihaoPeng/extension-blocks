@@ -1,19 +1,15 @@
 # Extension Blocks 扩展区块
 
 ```
-Layer: Consensus (soft-fork)
-层级：共识层（软分叉）
-Title: Extension Blocks
-标题：扩展区块
-Author: Christopher Jeffrey <chjj@purse.io>
+Layer 层级: Consensus (soft-fork) 共识层（软分叉）
+Title 标题: Extension Blocks 扩展区块
+Author 作者: Christopher Jeffrey <chjj@purse.io>
         Joseph Poon <joseph@lightning.network>
         Fedor Indutny <fedor@indutny.com>
         Stephen Pair <stephen@bitpay.com>
-Status: Draft
-状态：草案
-Created: 2017-03-17
-License: Public Domain
-许可：公有领域
+Status 状态: Draft 草案
+Created 起草于: 2017-03-17
+License 许可: Public Domain 公有领域
 ```
 
 译文摘自巴比特：<http://www.8btc.com/extension-blocks>，有改动。
@@ -23,14 +19,15 @@ License: Public Domain
 This specification defines a method of increasing bitcoin transaction
 throughput without altering any existing consensus rules.
 
-本规范定义了一种增加比特币的交易吞吐量同时又不改变现行共识规则的方法
+本规范定义了一种可增加比特币的交易吞吐量同时又不改变现行共识规则的方法。
 
 ## Motivation 目的
 
 The bitcoin network's transaction throughput is correlated with its consensus
 rules regarding retargetting and denial-of-service limits.
 
-比特币的交易吞吐量与它的共识规则相关，这一规则涉及到重定向（retargetting）和拒绝服务（denial-of-service）的限制。
+比特币的交易吞吐量与它的共识规则相关，这一规则受到难度调整（retargetting）和拒绝服务（denial-of-service）的限制。
+（译者注：根据下面那段的描述，这里说的retargetting应该是指：每隔2016个区块，比特币网络自动进行挖矿难度调整。）
 
 Bitcoin retargetting ensures that the time in between mined blocks will be
 roughly 10 minutes. It is not possible to change this rule. There has been
@@ -38,7 +35,7 @@ debate regarding other ways of greatly increasing transaction throughput, with
 no proposed consensus-layer solutions that have proven themselves to be
 particularly safe.
 
-比特币的重定向（retargetting），确保了挖出两个区块之间的时间间隔大约为十分钟，改变这规则是不可能的。已经有多种显著提高交易吞吐量的方法，但这些方法却没有提出共识层解决方案来证明自己足够安全。
+比特币的难度调整（retargetting），确保了挖出两个区块之间的时间间隔大约为十分钟，改变这规则是不可能的。已经有多种显著提高交易吞吐量的方法，但这些方法却没有提出共识层解决方案来证明自己足够安全。
 
 ## History 历史
 
@@ -46,12 +43,12 @@ _Auxiliary blocks_, as first proposed by [Johnson Lau in 2013][aux], outlined a
 way of having funds enter and exit an additional block by using special
 opcodes.
 
-**附加区块**，在2013年首次由Johnson Lau提出，该方案提出了通过特殊操作码让资金进入和退出附加产区快的方法。
+**附加区块**，在2013年首次由Johnson Lau提出，该方案提出了通过特殊操作码让资金进入和退出附加区块的方法。
 
 _Extension blocks_ were a later proposal, also [from Lau in 2017][ext], which
 revised many of the ideas of the original proposal.
 
-**扩展区块**是另一个改进提案，是在2017年同样由Johnson Lau提出的，新方案改变了原来方案的很多想法。
+**扩展区块**是另一个改进提案，在2017年同样由Johnson Lau提出，新方案改变了原来方案的很多想法。
 
 ## Specification 规范
 
@@ -111,18 +108,19 @@ output.
 
 ### Extension block opt-in 交易进出扩展区块
 
-（译者注：opt-in的意思是自愿接受，对应的反意词是opt-out，自愿拒绝。）
+（译者注：opt-in在这里表示交易进入扩展区块；对应的反意词是opt-out，表示交易退出扩展区块。）
 
 Outputs can signal to enter the extension block by using witness program
 scripts (specified in BIP141). Outputs signal to exit the extension block if
 the contained script is either a minimally encoded P2PKH or P2SH script.
 
-输出可以使用见证程序脚本（witness program scripts）（见证程序脚本由BIP141定义）发出信号来进入扩展区块。如果包含在脚本里的是最小编码的P2PKH或P2SH脚本，则表示输出发出信号退出扩展区块。
+主区块内的交易输出可以使用见证程序脚本（witness program scripts）（见证程序脚本由BIP141定义）发出信号来进入扩展区块。
+扩展区块内交易的输出脚本若为最小编码的P2PKH或P2SH脚本，则表示该输出退出扩展区块进入主区块。
 
 Output script code aside from witness programs, p2pkh or p2sh is considered
 invalid in extension blocks.
 
-在扩展区块中，输出脚本代码除了见证程序、P2PKH或者P2SH之外都会被认为是无效的。
+在扩展区块中，输出脚本除见证程序、P2PKH或P2SH之外，都被认为无效。
 
 ### Resolution 解析
 
@@ -344,9 +342,9 @@ by way of the resolution transaction. The outpoint created in the extension
 block MUST not to be spent on either chain. Instead, exiting outputs must be
 spent from outpoints created on the resolution transaction.
 
-根据上面的描述，扩展区块里的输出是通过解析交易来离开扩展区块回到主链上的。在扩展区块里该输入的前向输出（outpoint）必须没有被任何一边花费。此外，离开扩展区块的交易输出必须做为解析交易里输入的前向输出（outpoints）被花费。
+根据上面的描述，扩展区块里的输出是通过解析交易来离开扩展区块回到主链上的。在扩展区块里该交易的前向输出（outpoint）必须没有被任何一边花费。此外，离开扩展区块的交易输出必须做为解析交易的前向输出（outpoints）被花费。
 
-#### Exit Maturity Requirement
+#### Exit Maturity Requirement 退出成熟期要求
 
 Similar to coinbase transactions, resolution transactions can also be
 permanently un-mined in the case of a reorganization. This potentially
@@ -354,7 +352,9 @@ invalidates all spends from any exiting outputs it may have contained,
 rendering the spending transactions not relayable and no longer mineable on the
 best chain. An exit maturity requirement is required for this reason.
 
-See: https://github.com/tothemoon-org/extension-blocks/issues/9
+类似于coinbase交易，在区块链分叉并重构（reorganization）之后，解析交易就有可能永远不会被挖到。这会使得所有离开扩展区块的交易输出都无效，所有与之关联的花费交易都不可靠，并且使矿工无法进行最佳链挖矿。基于以上原因，离开扩展区块的交易需要等待一个退出成熟期。
+
+详见：https://github.com/tothemoon-org/extension-blocks/issues/9
 
 ### Fees
 
