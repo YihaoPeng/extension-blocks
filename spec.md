@@ -434,7 +434,7 @@ currently deployed softforks, along with an extra BIP141-like ruleset.
 Transactions within the extended transaction vector MAY include a witness
 vector using BIP141 transaction serialization.
 
-扩展交易集合（extended transaction vector）中的交易**可以**包含一个使用BIP141交易序列化表示的见证集合（witness vector）。
+扩展交易矢量（extended transaction vector）中的交易**可以**包含一个使用BIP141交易序列化表示的见证矢量（witness vector）。
 
 Verification shall be performed on extended transactions with `VERIFY_WITNESS`
 rules.
@@ -479,7 +479,7 @@ DoS限制应通过扩展块大小以及新定义的输入和输出成本标准�
 
 ```
 MAX_BLOCK_SIZE 最大主块大小: 1000000 (未改变)
-MAX_BLOCK_SIGOPS 最大主块签名数: 20000 (未改变)
+MAX_BLOCK_SIGOPS 最大主块签名次数: 20000 (未改变)
 MAX_EXTENSION_SIZE 最大扩展块大小: 待定
 MAX_EXTENSION_COST 最大扩展块成本: 待定
 ```
@@ -496,67 +496,104 @@ newer witness programs in order to allow future soft-forked dos limit changes.
 
 未来的区块尺寸和计算的可扩展性可以通过软分叉附加新的见证程序来实现。在未升级的节点中，未知见证程序的计算量开销被当成是 1 inputs/outputs 来计算。对新的见证程序设置更低的计算量开销可以使未来通过软分叉实现DoS限制策略的变更。
 
-##### Extended Transaction Cost
+##### Extended Transaction Cost 扩展交易成本
 
 Extension blocks leverage BIP141's upgradeable script behavior to also allow
 for upgradeable DoS limits.
 
-###### Calculating Inputs Cost
+扩展区块使用BIP141的可升级脚本，也允许可升级的DoS限制。
+
+###### Calculating Inputs Cost 输入成本的计算
 
 Witness key hash v0 shall be worth 1 point, multiplied by a factor of 8.
+
+见证公钥哈希v0的成本按1点算，乘上一个系数8。
 
 Witness script hash v0 shall be worth the number of accurately counted sigops
 in the redeem script, multiplied by a factor of 8.
 
+见证脚本哈希v0的成本为在赎回脚本中确切的签名次数（sigops）乘上一个系数8。
+
 Unknown witness programs shall be worth 1 point, multiplied by a factor of 1.
+
+未知见证程序的成本按1点算，乘上系数1。
 
 To reduce the chance of having redeem scripts which simply allow for garbage
 data in the witness vector, every 73 bytes in the serialized witness vector is
 worth 1 additional point.
 
+由于赎回脚本允许在见证矢量（witness vector）中产生垃圾数据，因此为了减少赎回脚本的使用几率，每73字节的序列化见证矢量（serialized witness vector）计为额外的1点。
+
 This leaves room for 7 future soft-fork upgrades to relax DoS limits.
 
-###### Calculating Outputs Cost
+这样给未来留下7点的空间，用于软分叉升级DoS限制。
+
+###### Calculating Outputs Cost 输出成本的计算
 
 Currently defined witness programs (v0) are each worth 8 points. Unknown
 witness program outputs are worth 1 point. Any exiting output is always worth
 8 points.
 
+当前定义的见证程序（v0）按8点计。未知的见证程序按1点计。任何现有的输出总是计为8点。
+
 This leaves room for 7 future soft-fork upgrades to relax DoS limits.
 
-#### Dust Threshold
+这样给未来留下7点的空间，用于软分叉升级DoS限制。
+
+#### Dust Threshold 垃圾交易阈值
 
 A consensus dust threshold is now enforced within the extension block.
+
+扩展块内目前执行一个共识的垃圾交易阙值。
 
 Outputs containing less than 500 satoshis of value are _invalid_ within an
 extension block. This _includes_ entering outputs as well, but not exiting
 outputs.
 
-### Rules for extra Lightning security
+在扩展区块内，任何包含500聪以下输出的交易直接判定为垃圾交易。这种判断法适用于进入扩展区块的交易，但不适用于离开扩展区块的交易。
+
+### Rules for extra Lightning security 额外的闪电网络安全规则
+
+（译者注：这一部分大体意思是关于外挂在扩展区块的闪电网络关闭通道，将通道状态广播到扩展区块时的成本预估，主要是通过收紧对广播交易的区块空间来惩罚非法广播，让攻击的手续费变的非常高）
 
 Lightning Network faces certain kinds of systemic attacks as defined in the
 Lightning Network whitepaper risks (mass-closeout of old states).
+
+在闪电网络白皮书中，已经定义了闪电网络所面临的系统性攻击(旧状态的大规模关闭)。
 
 If the second highest transaction version bit (30th bit) is set to to `1`
 within an extension block transaction, an extra 700-bytes is reserved on the
 transaction space used up in the block. [NOTE: Transaction space and sigops
 cost not yet defined]
 
+如果扩展区块版本位的第二高位（第30位）设置为1，则区块的交易空间中应保留额外的700字节。（注意：交易空间和签名操作成本尚未定义。）
+
 This space per transaction is pre-allocated and can be consumed in the same
 block by two transactions (of a maximum size of 350 bytes each), which fulfill
 specific constraints as defined below.
 
+这一空间中共有两个预分配的位置，可被该区块内的两笔交易所使用（每笔最大350字节），且填充时满足以下约束条件：
+
 The first allocation may only be consumed by a transaction which directly
 spends from the first output of the transaction with the 30th bit set.
+
+第一个位置只能被满足以下条件的交易使用：该交易直接花费了一个版本号第30位为1的交易的第一个输出。
 
 The second allocation may only consume the first output of ANY transaction
 within the past 2016 blocks which have the 30th bit set.
 
+第二个位置只能被满足以下条件的交易使用：该交易花费了最近2016个区块内的**任何**一个版本号第30位为1的交易的第一个输出。
+
 If the allocation is not used by other transactions, the transaction consumes
 that extra space, reducing the blocksize by up to 700 bytes in available space.
 
+如果这两个位置没有被其他交易使用，则满足这些条件的交易使用这两个位置，这让区块的可用空间减少了最多700字节。
+（译者注：也许这一句的翻译是错误的。）
+
 This is a consensus rule within the extension block and does not apply to the
 main-chain block.
+
+这一共识规则只适用于扩展区块，不适用于主链区块。
 
 The purpose of this is to ensure that without miner coordination, the costs
 will be unusually high for systemic attacks, since blockspace is preallocated
@@ -568,21 +605,32 @@ is that in the majority of cases of an incorrect broadcast, the penalty will be
 included in the same block via the second allocation, and give room for other
 transactions in the first allocation.
 
-### Migration and adoption concerns
+以上规则是为了确保：在无需矿工互相协同的情况下，攻击这一系统所要支付的手续费会异常的高，因为闪电网络交易是预订了区块空间的，并且闪电网络的交易双方都必须同意位于Commitment Transaction中的交易版本位。这是一个在闪电网络里的opt-in（自愿接受）特性，通过收取更高的手续费来提升处罚的效力。这是假定在大多数非法广播的场景中，同一区块内的处罚将位于第二个分配位置，并把第一分配位置留给其他交易。
+（译者注：这一段的翻译可能不太准确。）
+
+### Migration and adoption concerns 迁移与采纳的影响
 
 Most of the bitcoin ecosystem is currently well-equipped to handle an upgrade
 to BIP141.
 
+大头数比特币生态系统现在已经做好了升级到BIP141的准备。
+
 For wallets currently supporting BIP141, the migration should be trivial.
+
+对于现在支持BIP141的钱包，所需的迁移成本是很微小的。
 
 For fullnode-based services, APIs may be altered to transparently serve
 extension block transactions to clients as if they appeared in the canonical
 block. This, of course, would not include any miner API.
 
-### Wallet concerns and migration
+对全节点来说，API可以修改为透明的为扩展区块交易服务，就好像这些都是传统交易一样。当然这不包含矿工用的API（就是说矿工必须能够区分扩展和非扩展区块，而外接的程序则不一定需要区分）。
+
+### Wallet concerns and migration 钱包的影响与迁移
 
 Wallets currently supporting BIP141 must be modified in a few key ways in order
 to achieve compatibility with extension blocks.
+
+现在支持BIP141的钱包，必须做如下关键调整保证和扩展区块兼容：
 
 1. Wallets must pick a chain to spend from when creating a transaction (either
    the canonical block or the extension block, but not both). In other words,
@@ -599,9 +647,24 @@ to achieve compatibility with extension blocks.
    must ignore exiting outputs within the extension block. This is necessary to
    prevent wallets from mistakenly indexing the same output twice.
 
+译文：
+
+1. 当创建一笔交易时，钱包必须选择一条链来开始花费（要么选择主区块，要么选择扩展区块，但不能同时选两者）。
+   换句话说，交易的输入必须要么全为见证程序输入，要么没有任何见证程序输入。
+   对于支持两条链的钱包来说，如果用户没有定义使用哪条链的话，币选择器会自动选择一条链。
+   
+2. 支持扩展区块的钱包，当看到解析交易的输入时，必须忽略掉。
+   这可以非常简单的通过交易版本号来实现，就和钱包已经实现的忽略Coinbase交易的输入那样。
+   这一点对防止钱包错误地判断双花很重要。
+   
+3. 同时支持主区块和扩展区块资金的钱包必须忽略掉从扩展区块里离开的交易的输出。
+   这是为了防止钱包错误地将同样的输入索引两次。
+
 The latter two points only apply to wallets with operate via direct blockchain
 monitoring. Monitoring wallets typically watch the blockchain and index their
 own transactions and outputs.
+
+后两点只适合这样的钱包：这些钱包通过直接监控区块链来进行操作。监控类钱包通常关注区块链，并且索引他们自己的交易和输出。
 
 ### Mempool Concerns
 
