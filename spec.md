@@ -461,8 +461,7 @@ consider the entire block invalid.
 - The concept of `sigops cost` remains present for future soft-forkable and
   upgradeable DoS limits.
 
-
-
+译文：
 - 除了解析交易外，见证程序的输出必须只在扩展区块内被赎回。
 - 见证交易可以只包含见证程序输入。
 - BIP141的P2SH嵌套特性不再可用，该特性不再作为共识规则。
