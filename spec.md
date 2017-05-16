@@ -1,15 +1,15 @@
 # Extension Blocks 扩展区块
 
 ```
-Layer 层级: Consensus (soft-fork) 共识层（软分叉）
-Title 标题: Extension Blocks 扩展区块
-Author 作者: Christopher Jeffrey <chjj@purse.io>
+层级: Consensus (soft-fork) 共识层（软分叉）
+标题: Extension Blocks 扩展区块
+作者: Christopher Jeffrey <chjj@purse.io>
         Joseph Poon <joseph@lightning.network>
         Fedor Indutny <fedor@indutny.com>
         Stephen Pair <stephen@bitpay.com>
-Status 状态: Draft 草案
-Created 起草于: 2017-03-17
-License 许可: Public Domain 公有领域
+状态: Draft 草案
+起草于: 2017-03-17
+许可: Public Domain 公有领域
 ```
 
 译文摘自巴比特：<http://www.8btc.com/extension-blocks>，有改动。
@@ -170,7 +170,7 @@ block commitment along with any entering outputs (the `activation` block). This
 is the only resolution transaction in existence that does not require a
 reference to a previous resolution transaction.
 
-为了引导扩展区块的激活，一个创世解析交易必须首先被挖出，它存在于第一个包含了扩展区块特征的主区块内，记录了任何首次进入扩展区块的输出（该主区块称为激活块）。这是唯一一个，不需要引用上一个解析交易输出的解析交易。
+为了引导扩展区块的激活，一个创世解析交易**必须**首先被挖出，它存在于第一个包含了扩展区块特征的主区块内，记录了任何首次进入扩展区块的输出（该主区块称为激活块）。这是唯一一个，不需要引用上一个解析交易输出的解析交易。
 
 The genesis resolution transaction MAY also include a 1-100 byte script in the
 first input, containing a single push-only opcode. This allows the miner of the
@@ -183,7 +183,7 @@ without failure (no malformed pushdatas, no OP_RESERVED).
 
 The resolution transaction's first output MUST have a value equal to:
 
-解析交易的第一个输出金额必须等于：
+解析交易的第一个输出金额**必须**等于：
 
 `(previous-resolution-value + entering-value - exiting-value) - ext-block-fees`
 
@@ -199,7 +199,7 @@ After activation, this version is forbidden by consensus rules to be used with
 any other transaction on the canonical chain or extension chain. This is
 required for easy non-contextual identification of a resolution transaction.
 
-解析交易的版本必须设置到uint32最大（2^32-1）。在激活之后，这一版本号会被共识规则在主区块链（1M链）或其他扩展链上的交易禁止使用。这一要求是为了解析交易在非上下文状态（non-contextual）下被识别。
+解析交易的版本**必须**设置到uint32最大（2^32-1）。在激活之后，这一版本号会被共识规则在主区块链（1M链）或其他扩展链上的交易禁止使用。这一要求是为了解析交易在非上下文状态（non-contextual）下被识别。
 
 ### Entering the extension block 进入扩展区块
 
@@ -243,12 +243,12 @@ The resolution transaction shall redeem any witness program outputs:
 
 输入#0:
   - 前向输出（Outpoint）:
-    - 哈希: 前向解析交易txid
+    - 哈希: 前向解析交易的txid
     - 序号: 0
 
 输入#1:
   - 前向输出（Outpoint）:
-    - 哈希: 交易#2 TXID
+    - 哈希: 交易#2的TXID
     - 序号: 0
 
 输出#0:
@@ -265,7 +265,7 @@ extension block may exist as such:
 
 输入#0:
   - 前向输出（Outpoint）:
-    - 哈希: 交易#2 TXID
+    - 哈希: 交易#2的TXID
     - 序号: 0
 
 输出#0:
@@ -303,7 +303,7 @@ output to exit with some of their money.
 
 输入#0:
   - 前向输出（Outpoint）:
-    - 哈希: 前向解析交易txid
+    - 哈希: 前向解析交易的txid
     - 序号: 0
 
 输出#0:
@@ -323,7 +323,7 @@ Extension block:
 
 输入#0:
   - 前向输出（Outpoint）:
-    - 哈希: 交易#4 TXID
+    - 哈希: 交易#4的TXID
     - 序号: 0
 
 输出#0:
@@ -342,7 +342,7 @@ by way of the resolution transaction. The outpoint created in the extension
 block MUST not to be spent on either chain. Instead, exiting outputs must be
 spent from outpoints created on the resolution transaction.
 
-根据上面的描述，扩展区块里的输出是通过解析交易来离开扩展区块回到主链上的。在扩展区块里该交易的前向输出（outpoint）必须没有被任何一边花费。此外，离开扩展区块的交易输出必须做为解析交易的前向输出（outpoints）被花费。
+根据上面的描述，扩展区块里的输出是通过解析交易来离开扩展区块回到主链上的。在扩展区块里该交易的前向输出（outpoint）**必须没有**被任何一边花费。此外，离开扩展区块的交易输出必须做为解析交易的前向输出（outpoints）被花费。
 
 #### Exit Maturity Requirement 退出成熟期要求
 
@@ -356,68 +356,75 @@ best chain. An exit maturity requirement is required for this reason.
 
 详见：https://github.com/tothemoon-org/extension-blocks/issues/9
 
-### Fees
+### Fees 手续费
 
 Fees collected from inside the extension block propagate up to the
 corresponding resolution transaction. The resolution transaction's fee MUST be
 equal to the cumulative amount of fees collected inside the extension block.
 
+从扩展区块里收集到的手续费向上传递到对应的解析交易。解析交易的手续费**必须**等于扩展区块里所有交易的手续费之和。
+
 On the policy layer, transaction fees may be calculated by transaction cost as
 well as additional size/legacy-sigops added to the canonical block due to
 entering or exiting outputs.
 
+在费用策略制定层面,交易费的计算方法可以考虑交易成本，同时考虑进入和离开的输出导致主区块额外增长的`交易尺寸/签名策略`（size/legacy-sigops）。
+
 In the previous example, the spender of Transaction #2's output could have also
 added a fee.
 
-```
-Transaction #5 (coinbase):
-
-Output #0:
-  - Script: P2PKH
-  - Value: 12.501 (reward + fee)
-
-Output #1:
-  - Script: OP_RETURN 0xaa21a9ef[merkle-root]
-  - Value: 0
-```
+在之前的例子中，交易#2的输出可以包含一笔手续费：
 
 ```
-Transaction #6 (resolution transaction):
+交易#5 (coinbase):
 
-Input #0:
-  - Outpoint:
-    - Hash: previous-resolution-txid
-    - Index: 0
+输出#0:
+  - 脚本: P2PKH
+  - 金额: 12.501 (块奖励 + 手续费)
 
-Output #0:
-  - Script: OP_TRUE
-  - Value: 2.499 (fee is subtracted)
+输出#1:
+  - 脚本: OP_RETURN 0xaa21a9ef[merkle-root]
+  - 金额: 0
+```
 
-Output #1:
-  - Script: P2PKH (from the exited output below)
-  - Value: 2.5
+```
+交易#6 (解析交易):
+
+输入#0:
+  - 前向输出:
+    - 哈希: 前向解析交易的txid
+    - 序号: 0
+
+输出#0:
+  - 脚本: OP_TRUE
+  - 金额: 2.499 (减去了0.001 BTC的手续费)
+
+输出#1:
+  - 脚本: P2PKH (重复下方扩展块内的退出交易)
+  - 金额: 2.5
 ```
 
 Extension block:
+扩展块：
 
 ```
-Transaction #7:
+交易#7:
 
-Input #0:
-  - Outpoint:
-    - Hash: Transaction #4 TXID
-    - Index: 0
+输入#0:
+  - 前向输出:
+    - 哈希: 交易#4的TXID
+    - 序号: 0
 
-Output #0:
-  - Script: P2WPKH (this output will remain in the ext. block)
-  - Value: 2.499 (fee is subtracted, this propagates up)
+输出#0:
+  - 脚本: P2WPKH (该输出留在扩展块内)
+  - Value: 2.499 (手续费被减去，并传播至主区块)
 
-Output #1:
-  - Script: P2PKH (note that this causes an exit!)
-  - Value: 2.5
+输出#1:
+  - 脚本: P2PKH (该输出退出扩展区块)
+  - 金额: 2.5
 ```
 
-### Verification
+### Verification 验证
 
 Verification of transactions within the extension block shall enforce all
 currently deployed softforks, along with an extra BIP141-like ruleset.
