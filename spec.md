@@ -12,7 +12,7 @@
 许可: Public Domain 公有领域
 ```
 
-译文摘自巴比特：<http://www.8btc.com/extension-blocks>，有改动。
+译文摘自巴比特：<http://www.8btc.com/extension-blocks>，有较多改动。
 
 ## Abstract 摘要
 
