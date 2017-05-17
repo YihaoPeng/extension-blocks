@@ -874,9 +874,10 @@ blocks with many different rulesets.
 
 https://github.com/bcoin-org/bcoin-extension-blocks
 
-## Copyright 版权所有
+## Copyright 版权
 
 This document is hereby placed in the public domain.
+
 本文档发布于公有领域。
 
 [aux]: https://bitcointalk.org/index.php?topic=283746.0
