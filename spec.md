@@ -756,7 +756,7 @@ database migration.
 - 开始时间: 待定
 - 超时时间: 待定
 
-### Deactivation 去激活
+### Deactivation 失活
 
 Miners may vote on deactivation of the extension block via the 28th BIP9
 softfork bit. The "deactivation" deployment's start time shall begin 3 years
@@ -764,22 +764,28 @@ after the start time of extension blocks, with a miner activation threshold of
 95%. The minimum locked-in period must be at least 26 retarget intervals (1
 year).
 
-扩展区块激活后，矿工可以通过第28个BIP9软分叉位来实现将扩展区块去激活（使其失效）。这个“去激活”部署的开始时间应该在扩展区块激活后3年才可以，使“去激活”生效的算力阈值为95%。最小的锁定周期必须至少为26个难度调整周期（1年）。
+扩展区块激活后，矿工可以通过第28个BIP9软分叉位来实现让扩展区块失活。这个“失活”部署的开始时间应该在扩展区块激活后3年才可以，使“失活”生效的算力阈值为95%。最小的锁定周期必须至少为26个难度调整周期（1年）。
 
 By this point, a future extension block ruleset will likely have been
 developed, which is superior in terms of feature-set and scalability (see also:
 [Rootstock][rsk] and/or [Mimblewimble][mw]). This enables updates for long-term
 scalability solutions with minimal baggage of supporting deprecated chains.
 
+通过这一点，将来扩展区块规则集可以得到发展，它在功能集和可扩展性方面是非常优越的（另请阅读：[Rootstock][rsk]和[Mimblewimble][mw]）。这使得长期扩展解决方案在支持将要丢弃的链上升级时，代价和包袱很小。
+
 After deactivation, it is expected by the community that exits from the
 extension block will still still be possible and secure according to the terms
 of the yet-to-be-designed soft-fork, but entrance into and transfer of funds
 within the extension block could be no longer permitted.
 
+在失活后，社区肯定希望离开扩展区块的交易将以可选择的和安全的被设计好的软分叉进行，但进入扩展区块的交易和转移资金到扩展区块需要被禁止。
+
 We propose two possible solutions for deactivation, one of which will be
 selected in the final version of this document.
 
-#### Deactivation Option #1
+我们提出两个失活解决方案，本文档将选择其中之一作为最终方案。
+
+#### Deactivation Option #1 失活方案1
 
 Upon activation of the 28th bit, the resolution output will return to being an
 output which anyone-can-spend as a consensus rule today. This 28th BIP9 bit (or
@@ -788,10 +794,14 @@ activation to prevent this from actually being an anyone-can-spend in the
 future. This allows for enabling future extension block features without
 hard-forking the code.
 
+当第28个BIP9软分叉位被激活后，解析交易输出将退回到一个被现在共识规则定义好的“任何人都可以花费”的输出。这一BIP9位（或者结合其他BIP9位）可以在将来被重载以阻止这个“任何人都可以花费”的软分叉激活。这可以使得将来扩展区块特性不需要硬分叉。
+
 A social contract is understood whereby the funds in the extension block will
 be usable and redeemable in the general deactivation design below. If proper
 and safe withdrawals are not activated within the terms, users and exchanges
 can refuse to acknolwedge blocks with the bit set as a soft-fork.
+
+社区的共识是，在扩展区块失活后，里面的资金是可以被使用和赎回的。如果失活生效期间没有适当的和安全的取款条款，用户和交易所可以通过一个软分叉位来拒绝执行。
 
 It is possible to do a direct upgrade of the extension block by using the same
 output set upon BIP9 activation of the 28th bit in conjunction with new rules
@@ -799,18 +809,26 @@ on another bit (e.g. 27th bit activates the new chain conditionally upon the
 28th bit also being activated, creating a direct migration into a new extension
 block without new transactions on the main-chain).
 
+可以通过一个新的软分叉位来升级扩展区块，使用基于BIP9的激活策略，联合（conjunction）第28个位，并使用新的规则（例如，在第27个位激活新的链，并有条件地激活第28位，创造一个直接迁移到新的在主链上没有交易的扩展区块）。
+
 It is understood that this soft-fork will be overloaded with enforcement of
 withdrawal/redemption of funds so that it requires the script terms to be
 parsed upon withdrawal.
 
-#### Deactivation Option #2
+这个软分叉将强制执行取款/赎回资金，并将被重载，所以这要求脚本从语法上描述取款。
+
+#### Deactivation Option #2 失活方案2
 
 Upon activation of the 28th bit, no further transactions are permitted inside
 the extension block. Withdrawals to the main-chain only via merkle proofs are
 only permitted.
 
+当第28个软分叉位被激活后，不再允许扩展区块内出现交易。只允许通过梅克尔树证明来提现到主链。
+
 This requires code and specification for merkle-proof withdrawals to be
 specified and available today.
+
+该方案要求现在就详细说明并发布梅克尔树证明提现的代码和规范。
 
 #### Deactivation via Merkle Tree Proofs
 
