@@ -830,7 +830,8 @@ specified and available today.
 
 该方案要求现在就详细说明并发布梅克尔树证明提现的代码和规范。
 
-#### Deactivation via Merkle Tree Proofs
+#### 从此之后的译文没有校对。TODO: 进行校对
+#### Deactivation via Merkle Tree Proofs 通过梅克尔树证明使其失效
 
 Redemption from the old extension block to the main-chain and new extension
 block can be migrated by way of merkle proofs to be designed in the future.
@@ -838,20 +839,28 @@ Funds may be imported to the new extension block by hard-coding a UTXO merkle
 root into the implementation as a consensus rule, and verifying imported funds
 against a merkle path.
 
+从旧扩展区块到主链的交易赎回和新扩展区块可以通过以后设计梅克尔树证明的方式来转移。资金可以通过将UTXO梅克尔树根作为一种共识规则实现硬编码转入新扩展区块，并根据梅克尔树路径验证转入资金。
+
 To enable importing, nodes require only a copy of the current 32-byte merkle
 root of the deactivated extension block.
+
+为了使资金转入，节点只需要一份失效扩展区块当前32字节梅克尔树根的副本。
 
 This removes the necessity for full nodes to store a copy of the full UTXO set
 on disk, with a tradeoff of larger on-chain transactions when redeeming in the
 future. An alternative would be for all clients to maintain a record of the
 UTXO set and keep the full bitfield in memory.
 
+全节点就没必要在磁盘上存储完整UTXO集合，在将来赎回时使用一个大的链上交易进行平衡，（译者注：暂时没明白这是什么意思his removes the necessity for full nodes to store acopy of the full UTXO set on disk, with a tradeoff of larger on-chaintransactions when redeeming in the future.）替代方案是为了为客户端保存UTXO集合的记录并在内存中保持完整的位字段。
+
 Since the TXO set is static (with only whether it is unspent or spent changing)
 as it is deactivated from new outputs, this is simpler than currently proposed
 designs for changing UTXOs:
 https://lists.linuxfoundation.org/pipermail/bitcoin-dev/2015-October/011638.html
 
-#### Motivation
+基于新输出是无效的，TXO集是静态的（集只有花费或未花费的变化），这比目前提出的动态变化UTXOs的设计简单得多：https://lists.linuxfoundation.org/pipermail/bitcoin-dev/2015-October/011638.html
+
+#### Motivation 目的
 
 While deactivation may be seen as a drawback, the primary benefit of this
 specification is _not_ an extension block with a BIP141-ruleset. Instead, it is
@@ -859,13 +868,16 @@ that the ecosystem will have laid the groundwork for handling extension blocks.
 The future of the bitcoin protocol may include several different extension
 blocks with many different rulesets.
 
-## Reference Implementation (WIP)
+虽然失效被看作是一个不利条件，但是本规范的主要优点不是一个使用BIP141规则集的扩展区块。相反，这个生态系统将奠定以操作扩展区块为基础。未来的比特币协议也许会包含几种不同的扩展区块和很多不同的规则集。
+
+## Reference Implementation (WIP) 参考实现（正在开发）
 
 https://github.com/bcoin-org/bcoin-extension-blocks
 
-## Copyright
+## Copyright 版权所有
 
 This document is hereby placed in the public domain.
+本文档发布于公有领域。
 
 [aux]: https://bitcointalk.org/index.php?topic=283746.0
 [ext]: https://lists.linuxfoundation.org/pipermail/bitcoin-dev/2017-January/013490.html
